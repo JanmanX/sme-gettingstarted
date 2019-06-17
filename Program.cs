@@ -8,30 +8,34 @@ namespace GettingStarted
 	{
 		public static void Main(string[] args)
 		{
-
+            // Safe version
             using(var sim = new Simulation())
             {
-                var simulator = new ImageInputSimulator("image1.png");
-                var calculator = new ColorBinCollector(simulator.Data);
-
-                // Use fluent syntax to configure the simulator.
-                // The order does not matter, but `Run()` must be 
-                // the last method called.
-
-                // The top-level input and outputs are exposed
-                // for interfacing with other VHDL code or board pins
+                var simulator = new IndexSimulator();
+                var test_process = new TestProcess(simulator.idx_bus);
 
                 sim
-                    .AddTopLevelOutputs(calculator.Output)
-                    .AddTopLevelInputs(simulator.Data)
+                    .AddTopLevelOutputs(test_process.pcb_bus)
+                    .AddTopLevelInputs(simulator.idx_bus)
                     .BuildCSVFile()
                     .BuildVHDL()
     			    .Run();
+           }
 
-                // After `Run()` has been invoked the folder
-                // `output/vhdl` contains a Makefile that can
-                // be used for testing the generated design
+             // Unsafe version
+             using(var sim = new Simulation())
+             {
+                 var simulator = new IndexSimulator();
+                 var test_process = new TestUnsafeProcess(simulator.idx_bus);
+
+                 sim
+                     .AddTopLevelOutputs(test_process.pcb_bus)
+                     .AddTopLevelInputs(simulator.idx_bus)
+                     .BuildCSVFile()
+                     .BuildVHDL()
+    			     .Run();
             }
+	
 		}
 	}
 }
